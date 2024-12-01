@@ -1,0 +1,10 @@
+#!/bin/bash
+cat << EOF | sudo tee /var/lib/vz/snippets/vendor.yaml
+#cloud-config
+runcmd:
+    - apt-get update
+    - apt-get dist-upgrade -y
+    - apt-get install -y qemu-guest-agent
+    - systemctl start qemu-guest-agent
+    - reboot
+EOF
