@@ -7,6 +7,7 @@
 - from the terminal, add authorized keys for my user to hit root
 - run this script from the root shell on the new pve node - initializes a non-root user with sudo perms and zsh, etc.
 ````bash
-wget https://raw.githubusercontent.com/gerry-green/scripts/main/init-user
-./init-user gerry
+wget https://raw.githubusercontent.com/gerry-green/proxmox/main/init/init-node
+chmod +x init-node
+./init-node gerry
 ````

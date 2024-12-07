@@ -34,7 +34,7 @@ echo "$user ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/$user-is-a-god
 chsh -s $(which zsh) $user
 touch /home/$user/.zshrc
 
-curl -fsSL https://raw.githubusercontent.com/gerry-green/scripts/main/init-user > /home/$user/init-user
+curl -fsSL https://raw.githubusercontent.com/gerry-green/scripts/main/init/init-user > /home/$user/init-user
 chmod +x /home/$user/init-user
 
 chown -R $user:$user /home/$user
