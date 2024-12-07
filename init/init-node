@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# This script will initialize a new proxmox node with a standard config including a non-root user with sudo permissions
+
+user=$1
+
+[ -z "$user" ] && { echo "Please provide a user name dumbass"; exit 1; }
+
+# install several tools we will need
+apt-get update && apt-get install -y sudo zsh curl git jq
+
+# silence the fucking terminal bell
+sed -iE '/^# set bell-style none/s/^# //' /etc/inputrc
+
+# don't show user last login
+sed -i 's/^#PrintLastLog yes/PrintLastLog no/' /etc/ssh/sshd_config
+# or the motd
+sed -i '/pam_motd.so/s/^/# /' /etc/pam.d/sshd
+
+# check if target user already exists
+getent passwd | grep -q ^$user && { echo user $user already exists dumbass; exit 1; }
+
+# add sudo group if not present
+getent group | grep -q sudo || groupadd sudo
+
+useradd $user
+usermod -aG sudo $user
+mkdir -p /home/$user/.ssh
+grep $user ~/.ssh/authorized_keys > /home/$user/.ssh/authorized_keys
+chmod 600 /home/$user/.ssh/*
+
+echo "$user ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/$user-is-a-god
+
+chsh -s $(which zsh) $user
+touch /home/$user/.zshrc
+
+curl -fsSL https://raw.githubusercontent.com/gerry-green/scripts/main/init-user > /home/$user/init-user
+chmod +x /home/$user/init-user
+
+chown -R $user:$user /home/$user
+
