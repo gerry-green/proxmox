@@ -39,3 +39,6 @@ chmod +x /home/$user/init-user
 
 chown -R $user:$user /home/$user
 
+su -c "./init-user $user" - $user
+
+rm /home/$user/init-user
