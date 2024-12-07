@@ -1,6 +1,6 @@
 - boot host using proxmox iso and follow instructions
 - find the IP address assigned to the new node and reserve it in unifi
-- login to the node via the pve dashboard and update the host name (/etc/hosts and /etc/hostname)
+- login to the node via the pve dashboard and update the host name to add an ordinal (/etc/hosts and /etc/hostname)
 - reboot the node to take effect
 - add the no-subscription repositories and disable enterprise
 - add the hostname / IP to cloudflare
@@ -31,27 +31,10 @@ echo "$user ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/$user-is-a-god
 
 chsh -s $(which zsh) $user
 touch /home/$user/.zshrc
-touch /home/$user/initzsh
-chmod +x /home/$user/initzsh
+
+curl -fsSL https://raw.githubusercontent.com/gerry-green/scripts/main/init-user > /home/$user/init-user
+chmod +x /home/$user/init-user
 
 chown -R $user:$user /home/$user
-
-cat <<EOF > /home/$user/initzsh
-#!/usr/bin/zsh
-cd /home/$user
-
-# silence vim: (seriously who the fuck would want the bell on by default?)
-echo "set belloff=all" > .vimrc
-# and stop fucking with the line endings:
-echo "set nofixeol" >> .vimrc
-
-export RUNZSH=no
-sh -c "\$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
-# install powerlevel10k theme and switch to it:
-git clone --depth=1 https://github.com/romkatv/powerlevel10k.git /home/$user/.oh-my-zsh/custom/themes/powerlevel10k
-sed -i '/^ZSH_THEME=/s/=.*/=powerlevel10k\/powerlevel10k/' .zshrc
-
-EOF
 
 ````

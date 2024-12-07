@@ -4,7 +4,9 @@
 # 
 # original idea from https://github.com/UntouchedWagons/Ubuntu-CloudInit-Docs
 
+# find the node ordinal from the current hostname (pve, pve2, pve3)
 node=$(hostname|perl -ne 'chomp;s/\D+//;print $_ ? $_ : 1')
+# create a unique id for the template based on the node ordinal
 vmid=${node}8001
 image_path=~/images
 username=gerry
