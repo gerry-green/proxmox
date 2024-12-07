@@ -16,7 +16,7 @@ apt-get update && apt-get install -y sudo zsh curl git jq
 sed -iE '/^# set bell-style none/s/^# //' /etc/inputrc
 
 # check if target user already exists
-getent passwd | grep -q ^$user && { echo user $user already exists dumbass; exit 1; }
+getent passwd | grep -q ^$user && { echo "user $user already exists dumbass"; exit 1; }
 
 # add sudo group if not present
 getent group | grep -q sudo || groupadd sudo
