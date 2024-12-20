@@ -25,20 +25,30 @@ getent group | grep -q sudo || groupadd sudo
 
 useradd $user
 usermod -aG sudo $user
+
 mkdir -p /home/$user/.ssh
 grep $user ~/.ssh/authorized_keys > /home/$user/.ssh/authorized_keys
+[ -f /root/.ssh/github ] && cp /root/.ssh/github /home/$user/.ssh/
 chmod 600 /home/$user/.ssh/*
 
 echo "$user ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/$user-is-a-god
 
 chsh -s $(which zsh) $user
+# kill the zsh initial setup script
 touch /home/$user/.zshrc
+
+# todo - create a git config that sets up github access
+# todo - automate adding the github key to known hosts ahead of this step
+# snag a copy of the proxmox repo for setting up template VMs on the node
+git clone git@github.com:gerry-green/proxmox.git /home/$user/proxmox
+
+echo "alias qm='sudo qm'" > /home/$user/.zsh_aliases
 
 curl -fsSL https://raw.githubusercontent.com/gerry-green/scripts/main/init/init-user > /home/$user/init-user
 chmod +x /home/$user/init-user
 
 chown -R $user:$user /home/$user
 
-su -c "./init-user $user" - $user
+su -c ./init-user - $user
 
 rm /home/$user/init-user
