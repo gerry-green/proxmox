@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# create a k3s node qm template based on Ubuntu noble (24.04)
+# 
+# original idea from https://github.com/UntouchedWagons/Ubuntu-CloudInit-Docs
+
+# find the node ordinal from the current hostname (pve, pve2, pve3)
+node=$(hostname|perl -ne 'chomp;s/\D+//;print $_ ? $_ : 1')
+# create a unique id for the template based on the node ordinal
+vmid=${node}002
+image_path=~/images
+username=gerry
+
+mkdir -p $image_path
+pushd $image_path
+rm -f noble-server-cloudimg-amd64.img
+wget -q https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
+qemu-img resize noble-server-cloudimg-amd64.img 96G
+popd
+
+sudo qm list | grep -qP "^\s+$vmid\s" && sudo qm destroy $vmid
+
+sudo qm create $vmid \
+    --name "k3s-worker-template" \
+    --ostype l26 \
+    --memory 4096 \
+    --agent 1 \
+    --bios ovmf \
+    --machine q35 \
+    --efidisk0 local-lvm:0,pre-enrolled-keys=0 \
+    --cpu host \
+    --socket 1 \
+    --cores 2 \
+    --vga serial0 --serial0 socket  \
+    --net0 virtio,bridge=vmbr0
+
+sudo qm importdisk $vmid $image_path/noble-server-cloudimg-amd64.img local-lvm
+
+sudo qm set $vmid \
+  --scsihw virtio-scsi-pci \
+  --virtio0 local-lvm:vm-$vmid-disk-1,discard=on \
+  --boot order=virtio0 \
+  --scsi1 local-lvm:cloudinit
+
+sudo qm set $vmid \
+  --cicustom "vendor=local:snippets/k3s-worker.yaml" \
+  --tags k3s-worker,ubuntu-24.04,cloudinit \
+  --ciuser $username \
+  --sshkeys ~/.ssh/authorized_keys \
+  --ipconfig0 ip=dhcp \
+
+sudo qm template $vmid 

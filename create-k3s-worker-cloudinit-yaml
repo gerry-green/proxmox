@@ -1,6 +1,6 @@
 #!/bin/bash
 sudo mkdir -p /var/lib/vz/snippets
-cat << EOF | sudo tee /var/lib/vz/snippets/k3s-node.yaml
+cat << EOF | sudo tee /var/lib/vz/snippets/k3s-worker.yaml
 #cloud-config
 runcmd:
     - apt-get update

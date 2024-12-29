@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+
+for host in pve pve2 pve3; do
+    scp create-k3s* $host:
+    ssh $host ./create-k3s-master-cloudinit-yaml
+    ssh $host ./create-k3s-master-template
+    ssh $host ./create-k3s-worker-cloudinit-yaml
+    ssh $host ./create-k3s-worker-template
+done

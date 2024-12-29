@@ -1,0 +1,11 @@
+#!/bin/bash
+sudo mkdir -p /var/lib/vz/snippets
+cat << EOF | sudo tee /var/lib/vz/snippets/k3s-master.yaml
+#cloud-config
+runcmd:
+    - apt-get update
+    - apt-get dist-upgrade -y
+    - apt-get install -y qemu-guest-agent
+    - systemctl start qemu-guest-agent
+    - reboot
+EOF
