@@ -7,14 +7,14 @@
 # find the node ordinal from the current hostname (pve, pve2, pve3)
 node=$(hostname|perl -ne 'chomp;s/\D+//;print $_ ? $_ : 1')
 # create a unique id for the template based on the node ordinal
-vmid=${node}8001
+vmid=${node}001
 image_path=~/images
 username=gerry
 
 mkdir -p $image_path
 pushd $image_path
 wget -q https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
-qemu-img resize noble-server-cloudimg-amd64.img 32G
+qemu-img resize noble-server-cloudimg-amd64.img 96G
 popd
 
 sudo qm list | grep -qP "^\s+$vmid\s" && sudo qm destroy $vmid
