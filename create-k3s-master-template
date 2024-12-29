@@ -21,7 +21,7 @@ popd
 sudo qm list | grep -qP "^\s+$vmid\s" && sudo qm destroy $vmid
 
 sudo qm create $vmid \
-    --name "k3s-worker-template" \
+    --name "k3s-master-template" \
     --ostype l26 \
     --memory 4096 \
     --agent 1 \
