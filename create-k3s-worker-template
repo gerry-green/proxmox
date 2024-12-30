@@ -23,7 +23,7 @@ sudo qm list | grep -qP "^\s+$vmid\s" && sudo qm destroy $vmid
 sudo qm create $vmid \
     --name "k3s-worker-template" \
     --ostype l26 \
-    --memory 4096 \
+    --memory 8192 \
     --agent 1 \
     --bios ovmf \
     --machine q35 \
