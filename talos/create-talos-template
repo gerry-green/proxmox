@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# create a talos node qm template
+# 
+
+# find the node ordinal from the current hostname (pve, pve2, pve3)
+node=$(hostname|perl -ne 'chomp;s/\D+//;print $_ ? $_ : 1')
+# create a unique id for the template based on the node ordinal
+vmid=${node}011
+image_path=~/images
+
+mkdir -p $image_path
+pushd $image_path
+rm -f metal-amd64.iso
+wget -q https://github.com/siderolabs/talos/releases/download/v1.9.2/metal-amd64.iso
+qemu-img resize metal-amd64.iso 32G
+popd
+
+sudo qm list | grep -qP "^\s+$vmid\s" && sudo qm destroy $vmid
+
+sudo qm create $vmid \
+  --name "talos-template" \
+  --ostype l26 \
+  --memory 4096 \
+  --agent 1 \
+  --bios ovmf \
+  --machine q35 \
+  --efidisk0 local-lvm:0,pre-enrolled-keys=0 \
+  --cpu host \
+  --socket 1 \
+  --cores 2 \
+  --vga serial0 --serial0 socket  \
+  --net0 virtio,bridge=vmbr0
+
+sudo qm importdisk $vmid $image_path/metal-amd64.iso local-lvm
+
+sudo qm set $vmid \
+  --scsihw virtio-scsi-pci \
+  --virtio0 local-lvm:vm-$vmid-disk-1,discard=on \
+  --boot order=virtio0 \
+  --tags talos,v1.9.2 \
+  --ipconfig0 ip=dhcp \
+
+sudo qm template $vmid 

@@ -1,0 +1,6 @@
+#!/usr/bin/bash
+
+for host in pve pve2 pve3; do
+    scp create-talos-template* $host:
+    ssh $host ./create-talos-template
+done
