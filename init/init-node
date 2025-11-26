@@ -6,6 +6,8 @@ user=$1
 
 [ -z "$user" ] && { echo "Please provide a user name dumbass"; exit 1; }
 
+[ -f ~/.ssh/github ] || { echo "You must have the github private key in /root/.ssh/github to clone the proxmox repo"; exit 1; }
+
 # install several tools we will need
 apt-get update && apt-get install -y sudo zsh curl git jq
 
@@ -28,7 +30,8 @@ usermod -aG sudo $user
 
 mkdir -p /home/$user/.ssh
 grep $user ~/.ssh/authorized_keys > /home/$user/.ssh/authorized_keys
-[ -f /root/.ssh/github ] && cp /root/.ssh/github /home/$user/.ssh/
+
+cp /root/.ssh/github /home/$user/.ssh/
 chmod 600 /home/$user/.ssh/*
 
 echo "$user ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/$user-is-a-god
