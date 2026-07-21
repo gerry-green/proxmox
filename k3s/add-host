@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# from https://goteleport.com/blog/how-to-configure-ssh-certificate-based-authentication/
+
+# this script is used to convert an existing host to use host certificates
+# proxmox will have left an authorized_keys file to permit access for this script - we turn off strict host key checking while we install this certificate
+
+host=$1
+[ -z "$host" ] && { echo "Usage: $0 <host>" && exit 1; }
+[ -f ~/.ca/host_ca ] || { echo "Host CA not found at ~/.ca/host_ca" && exit 1; }
+[ -f ~/.ca/user_ca.pub ] || { echo "User CA public key not found at ~/.ca/user_ca.pub" && exit 1; }
+
+ssh-keygen -f ssh_host_rsa_key -N '' -b 4096 -t rsa >/dev/null 2>&1
+
+ssh-keygen -s ~/.ca/host_ca -I $host.g2dev.net -h -n $host,$host.g2dev.net -V +52w ssh_host_rsa_key.pub
+
+scp -o LogLevel=ERROR -o StrictHostKeyChecking=no -o UserknownHostsFile=/dev/null ssh_host* ~/.ca/user_ca.pub $host: >/dev/null
+
+ssh -o LogLevel=ERROR -o StrictHostKeyChecking=no -o UserknownHostsFile=/dev/null $host \
+    "sudo mv ssh_host* user_ca.pub /etc/ssh/;
+    sudo chown root:root /etc/ssh/ssh_host_rsa_key* /etc/ssh/user_ca.pub;
+    sudo chmod 600 /etc/ssh/ssh_host_rsa_key-cert.pub;
+    echo 'HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub' | sudo tee /etc/ssh/sshd_config.d/host-cert.conf >/dev/null;
+    echo 'TrustedUserCAKeys /etc/ssh/user_ca.pub' | sudo tee /etc/ssh/sshd_config.d/user_ca.pub.conf >/dev/null;
+    sudo systemctl restart ssh"
+
+rm -f ssh_host_rsa_key ssh_host_rsa_key-cert.pub ssh_host_rsa_key.pub
