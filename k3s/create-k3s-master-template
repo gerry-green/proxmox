@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# create a k3s node qm template based on Ubuntu noble (24.04)
+# create a k3s node qm template based on Ubuntu resolute (26.04)
 # 
 # original idea from https://github.com/UntouchedWagons/Ubuntu-CloudInit-Docs
 
@@ -13,9 +13,9 @@ username=gerry
 
 mkdir -p $image_path
 pushd $image_path
-rm -f noble-server-cloudimg-amd64.img
-wget -q https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
-qemu-img resize noble-server-cloudimg-amd64.img 32G
+rm -f resolute-server-cloudimg-amd64.img
+wget -q https://cloud-images.ubuntu.com/resolute/current/resolute-server-cloudimg-amd64.img
+qemu-img resize resolute-server-cloudimg-amd64.img 32G
 popd
 
 sudo qm list | grep -qP "^\s+$vmid\s" && sudo qm destroy $vmid
@@ -34,7 +34,7 @@ sudo qm create $vmid \
     --vga serial0 --serial0 socket  \
     --net0 virtio,bridge=vmbr0
 
-sudo qm importdisk $vmid $image_path/noble-server-cloudimg-amd64.img local-lvm
+sudo qm importdisk $vmid $image_path/resolute-server-cloudimg-amd64.img local-lvm
 
 sudo qm set $vmid \
   --scsihw virtio-scsi-pci \
@@ -44,7 +44,7 @@ sudo qm set $vmid \
 
 sudo qm set $vmid \
   --cicustom "vendor=local:snippets/k3s-master.yaml" \
-  --tags k3s-master,ubuntu-24.04,cloudinit \
+  --tags k3s-master,ubuntu-26.04,cloudinit \
   --ciuser $username \
   --sshkeys ~/.ssh/authorized_keys \
   --ipconfig0 ip=dhcp \

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# create an ubuntu noble (24.04) qm template
+# create an ubuntu resolute (26.04) qm template
 # 
 # original idea from https://github.com/UntouchedWagons/Ubuntu-CloudInit-Docs
 
@@ -13,14 +13,14 @@ username=gerry
 
 mkdir -p $image_path
 pushd $image_path
-wget -q https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
-qemu-img resize noble-server-cloudimg-amd64.img 96G
+wget -q https://cloud-images.ubuntu.com/resolute/current/resolute-server-cloudimg-amd64.img
+qemu-img resize resolute-server-cloudimg-amd64.img 96G
 popd
 
 sudo qm list | grep -qP "^\s+$vmid\s" && sudo qm destroy $vmid
 
 sudo qm create $vmid \
-    --name "noble-template" \
+    --name "resolute-template" \
     --ostype l26 \
     --memory 4096 \
     --agent 1 \
@@ -33,7 +33,7 @@ sudo qm create $vmid \
     --vga serial0 --serial0 socket  \
     --net0 virtio,bridge=vmbr0
 
-sudo qm importdisk $vmid $image_path/noble-server-cloudimg-amd64.img local-lvm
+sudo qm importdisk $vmid $image_path/resolute-server-cloudimg-amd64.img local-lvm
 
 sudo qm set $vmid \
   --scsihw virtio-scsi-pci \
@@ -43,7 +43,7 @@ sudo qm set $vmid \
 
 sudo qm set $vmid \
   --cicustom "vendor=local:snippets/vendor.yaml" \
-  --tags ubuntu-template,24.04,cloudinit \
+  --tags ubuntu-template,26.04,cloudinit \
   --ciuser $username \
   --sshkeys ~/.ssh/authorized_keys \
   --ipconfig0 ip=dhcp \
