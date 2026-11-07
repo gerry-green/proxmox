@@ -12,11 +12,11 @@ pvehost=pve2
 host=wrecker
 ssh $pvehost "sudo qm clone $templateid $vmid --name $host; sudo qm start $vmid"
 
-templateid=3001
-vmid=3100
-pvehost=pve3
-host=crosshair
-ssh $pvehost "sudo qm clone $templateid $vmid --name $host; sudo qm start $vmid"
+# templateid=3001
+# vmid=3100
+# pvehost=pve3
+# host=crosshair
+# ssh $pvehost "sudo qm clone $templateid $vmid --name $host; sudo qm start $vmid"
 
 memory=8192
 templateid=1002
@@ -41,21 +41,21 @@ for host in aragorn isildur tech; do
         vmid=$(($vmid+1))
 done
 
-templateid=3002
-vmid=3101
-pvehost=pve3
-for host in cmdrcody; do
-    ssh $pvehost "sudo qm clone $templateid $vmid --name $host; 
-                  sudo qm set $vmid --memory $memory;
-                  sudo qm start $vmid;"
-
-        vmid=$(($vmid+1))
-done
+# templateid=3002
+# vmid=3101
+# pvehost=pve3
+# for host in cmdrcody; do
+#     ssh $pvehost "sudo qm clone $templateid $vmid --name $host; 
+#                   sudo qm set $vmid --memory $memory;
+#                   sudo qm start $vmid;"
+# 
+#         vmid=$(($vmid+1))
+# done
 
 echo 'Pausing for VMs to boot'
 
 # let the VMs finish booting before adding the host certs
 sleep 300
-for host in hunter elendil boromir faramir durin wrecker aragorn isildur tech crosshair cmdrcody; do
+for host in hunter elendil boromir faramir durin wrecker aragorn isildur tech; do
     ./add-host $host
 done
